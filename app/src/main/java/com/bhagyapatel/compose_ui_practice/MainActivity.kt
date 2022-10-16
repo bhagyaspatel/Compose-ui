@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.bhagyapatel.compose_ui_practice.ui.theme.ComposeUIpracticeTheme
 
 class MainActivity : ComponentActivity() {
-    @ExperimentalMaterialApi
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colors.secondaryVariant)
-                        .padding(24.dp)
+                        .padding(12.dp)
                 ) {
                     ExpandableCard(title = "Bhagya",
                         description = "Lorem ipsum dolor sit amet. Eum quos aliquid et perspiciatis " +

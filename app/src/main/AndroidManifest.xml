@@ -3,7 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bhagyapatel.compose_ui_practice">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+<!-- android:usesCleartextTraffic="true" and internet permission neeeded for using coil library for images -->
+
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
