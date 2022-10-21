@@ -1,37 +1,39 @@
-package com.bhagyapatel.compose_ui_practice
+package com.bhagyapatel.compose_ui_practice.NavGraphs
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
+import androidx.navigation.*
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import androidx.navigation.compose.navigation
+import com.bhagyapatel.compose_ui_practice.*
 
 @OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun SetupHomeNavGraph(navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = "home_screen?id={id}"
-    ) { //route of the start destination
+fun NavGraphBuilder.homeNavGraph(navController: NavHostController) {
+
+    navigation(
+        startDestination = Routes.Home.route,
+        route = HOME_ROUTE
+    ) {
         composable(
             route = Routes.Home.route,
-            arguments = listOf(navArgument("msg"){
+            arguments = listOf(navArgument("msg") {
                 type = NavType.IntType
                 defaultValue = 0
             })
         ) {
             val id = it.arguments?.getString("id")?.toInt()
 
-            HomeScreen(onClick = {
-                navController.navigate(route = Routes.Ui.passMessage(it))
-            }, id)
+            HomeScreen(id,
+                onGoClick = {
+                    navController.navigate(route = Routes.Ui.passMessage(it))
+                }, onAuthClick = {
+                    navController.navigate(route = AUTHENTICATION_ROUTE)
+                }
+            )
         }
 
         composable(
             route = Routes.Ui.route,
-            arguments = listOf(navArgument("message"){
+            arguments = listOf(navArgument("message") {
                 type = NavType.StringType
             })
         ) {
@@ -49,13 +51,12 @@ fun SetupHomeNavGraph(navController: NavHostController) {
                 onClick = {
 //                    navController.navigate(route = Routes.Home.route) //problem :: addition to popBackStack
 //                    navController.popBackStack()  //we could also press back button in this case
-                    navController.navigate(route = Routes.Home.passMessage()){
-                        popUpTo(Routes.Home.route){
+                    navController.navigate(route = Routes.Home.passMessage()) {
+                        popUpTo(Routes.Home.route) {
                             inclusive = true
                         }
                     }
                 },
-
                 message = message
             )
         }
