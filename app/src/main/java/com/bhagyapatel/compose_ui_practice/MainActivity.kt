@@ -15,52 +15,54 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.bhagyapatel.compose_ui_practice.ui.theme.ComposeUIpracticeTheme
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterialApi::class)
+
+    private lateinit var navController: NavHostController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeUIpracticeTheme {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colors.secondaryVariant)
-                        .padding(12.dp)
-                ) {
-                    ExpandableCard(title = "Bhagya",
-                        description = "Lorem ipsum dolor sit amet. Eum quos aliquid et perspiciatis " +
-                                "alias qui totam amet est alias natus et distinctio accusamus? Hic quasi " +
-                                "numquam eos quia quaerat qui aspernatur dignissimos 33 voluptatem iure " +
-                                "ex delectus quaerat vel galisum labore est nostrum harum. Vel debitis " +
-                                "temporibus et doloremque iusto eos ratione galisum sit voluptatem dolor " +
-                                "et molestias temporibus et consequatur veniam.")
-                }
+                ComposeApp()
             }
         }
     }
+
+    @Composable
+    private fun ComposeApp() {
+        navController = rememberNavController()
+        SetupHomeNavGraph(navController)
+    }
+
 }
 
 @ExperimentalMaterialApi
 @Preview
 @Composable
-fun DefaultPreview(){
+fun DefaultPreview() {
     ComposeUIpracticeTheme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colors.secondaryVariant)
                 .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             ExpandableCard(title = "Bhagya",
                 description = "Lorem ipsum dolor sit amet. Eum quos aliquid et perspiciatis " +
                         "alias qui totam amet est alias natus et distinctio accusamus? Hic quasi " +
                         "numquam eos quia quaerat qui aspernatur dignissimos 33 voluptatem iure " +
                         "ex delectus quaerat vel galisum labore est nostrum harum. Vel debitis " +
                         "temporibus et doloremque iusto eos ratione galisum sit voluptatem dolor " +
-                        "et molestias temporibus et consequatur veniam.")
+                        "et molestias temporibus et consequatur veniam.",
+                onClick = {},
+                message = "Message"
+            )
         }
     }
 }
