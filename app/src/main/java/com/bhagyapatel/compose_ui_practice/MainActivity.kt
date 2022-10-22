@@ -27,17 +27,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeUIpracticeTheme {
-                ComposeApp()
+                MainScreen()
             }
         }
     }
-
-    @Composable
-    private fun ComposeApp() {
-        navController = rememberNavController()
-        SetupHomeNavGraph(navController)
-    }
-
 }
 
 @ExperimentalMaterialApi
