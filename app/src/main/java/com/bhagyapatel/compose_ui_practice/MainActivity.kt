@@ -3,6 +3,7 @@ package com.bhagyapatel.compose_ui_practice
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,12 +23,13 @@ import com.bhagyapatel.compose_ui_practice.ui.theme.ComposeUIpracticeTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var navController: NavHostController
+    private val mainViewModal : MainViewModal by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeUIpracticeTheme {
-                MainScreen()
+                MainScreen(mainViewModal)
             }
         }
     }

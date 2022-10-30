@@ -16,7 +16,6 @@ sealed class BottomBarScreen(
         title = "Home",
         icon = Icons.Default.Home
     )
-
     object Profile : BottomBarScreen(
         route = "profile",
         title = "Profile",
