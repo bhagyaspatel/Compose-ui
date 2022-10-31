@@ -5,6 +5,10 @@ import androidx.navigation.*
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.bhagyapatel.compose_ui_practice.*
+import com.bhagyapatel.compose_ui_practice.Routes.AUTHENTICATION_ROUTE
+import com.bhagyapatel.compose_ui_practice.Routes.HOME_ROUTE
+import com.bhagyapatel.compose_ui_practice.Routes.MESSAGE_ARGS_KEY
+import com.bhagyapatel.compose_ui_practice.Routes.Routes
 
 @OptIn(ExperimentalMaterialApi::class)
 fun NavGraphBuilder.homeNavGraph(navController: NavHostController) {

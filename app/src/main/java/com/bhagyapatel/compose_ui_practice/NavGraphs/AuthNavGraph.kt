@@ -4,9 +4,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.bhagyapatel.compose_ui_practice.AUTHENTICATION_ROUTE
 import com.bhagyapatel.compose_ui_practice.LoginScreen
-import com.bhagyapatel.compose_ui_practice.Routes
+import com.bhagyapatel.compose_ui_practice.Routes.AUTHENTICATION_ROUTE
+import com.bhagyapatel.compose_ui_practice.Routes.Routes
 import com.bhagyapatel.compose_ui_practice.SignupScreen
 
 fun  NavGraphBuilder.authNavGraph(

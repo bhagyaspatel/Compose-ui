@@ -1,4 +1,4 @@
-package com.bhagyapatel.compose_ui_practice
+package com.bhagyapatel.compose_ui_practice.Routes
 
 const val MESSAGE_ARGS_KEY = "message"
 const val ROOT_ROUTE = "root"

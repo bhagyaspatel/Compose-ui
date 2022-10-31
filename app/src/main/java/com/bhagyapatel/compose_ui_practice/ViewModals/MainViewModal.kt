@@ -1,9 +1,10 @@
-package com.bhagyapatel.compose_ui_practice
+package com.bhagyapatel.compose_ui_practice.ViewModals
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.bhagyapatel.compose_ui_practice.AllScreenWidgets.SearchWidgetState
 
 class MainViewModal : ViewModel() {
     private val _searchWidgetState : MutableState<SearchWidgetState> =

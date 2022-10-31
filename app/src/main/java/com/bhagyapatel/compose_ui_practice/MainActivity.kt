@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.bhagyapatel.compose_ui_practice.ViewModals.MainViewModal
 import com.bhagyapatel.compose_ui_practice.ui.theme.ComposeUIpracticeTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeUIpracticeTheme {
-                MainScreen(mainViewModal)
+                BarLayouts(mainViewModal)
             }
         }
     }

@@ -1,15 +1,16 @@
 package com.bhagyapatel.compose_ui_practice
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -19,21 +20,63 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.bhagyapatel.compose_ui_practice.Routes.BottomBarScreen
+import com.bhagyapatel.compose_ui_practice.AllScreenWidgets.SearchWidgetState
+import com.bhagyapatel.compose_ui_practice.DataClasses.MenuItems
+import com.bhagyapatel.compose_ui_practice.HomeAndUIScreens.DrawerBody
+import com.bhagyapatel.compose_ui_practice.HomeAndUIScreens.DrawerHeader
+import com.bhagyapatel.compose_ui_practice.ViewModals.MainViewModal
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(mainViewModal: MainViewModal) {
+fun BarLayouts(mainViewModal: MainViewModal) {
 
     val searchWidgetState by mainViewModal.searchWidgetState
     val searchTextState by mainViewModal.searchTextState
     val context = LocalContext.current
 
     val navController = rememberNavController()
+
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+
     Scaffold(
+//        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
+        //dragging option to toggle drawer is only available when drawer is open
+
+        drawerContent = {
+            DrawerHeader()
+            DrawerBody(
+                menuItems = listOf(
+                    MenuItems(
+                        id = "about us",
+                        title = "About us",
+                        contentDescription = "About us page",
+                        icon = Icons.Default.Info
+                    ),
+                    MenuItems(
+                        id = "contact us",
+                        title = "Contact us",
+                        contentDescription = "Contact us page",
+                        icon = Icons.Default.Phone
+                    ),
+                    MenuItems(
+                        id = "Sign Out",
+                        title = "Sign Out",
+                        contentDescription = "Sign out button",
+                        icon = Icons.Default.Close
+                    )
+                ),
+                onItemClicked = {
+                    Toast.makeText(context, "${it.title} clicked", Toast.LENGTH_SHORT).show()
+                }
+            )
+        },
         topBar = {
             MainAppBar(
                 searchWidgetState = searchWidgetState,
@@ -50,6 +93,15 @@ fun MainScreen(mainViewModal: MainViewModal) {
                 },
                 onSearchTriggered = {
                     mainViewModal.updateSearchWidgetState(SearchWidgetState.OPEN)
+                },
+                onNavigationDrawerTriggered = {
+//the animation for opening the drawer takes some time so we need to perform this task
+//inside a coroutine
+                    scope.launch {
+                        Log.d("TAG", "MainAppBar: is drawer open: ${scaffoldState.drawerState.isOpen}")
+                        scaffoldState.drawerState.open()
+                        Log.d("TAG", "MainAppBar: is drawer open: ${scaffoldState.drawerState.isOpen}")
+                    }
                 }
             )
         },
@@ -66,11 +118,15 @@ fun MainAppBar(
     onTextChanged: (String) -> Unit,
     onCloseClicked: () -> Unit,
     onSearchClicked: (String) -> Unit,
-    onSearchTriggered: () -> Unit
+    onSearchTriggered: () -> Unit,
+    onNavigationDrawerTriggered: () -> Unit
 ) { //this will decide weather to show DefaultAppBar() or SearchAppBar()
     when (searchWidgetState) {
         SearchWidgetState.CLOSED -> {
-            DefaultTopBar (onSearchTriggered = onSearchTriggered)
+            DefaultTopBar(
+                onSearchTriggered = onSearchTriggered,
+                onNavigationDrawerTriggered = onNavigationDrawerTriggered
+            )
         }
 
         SearchWidgetState.OPEN -> {
@@ -85,7 +141,10 @@ fun MainAppBar(
 }
 
 @Composable
-fun DefaultTopBar(onSearchTriggered: () -> Unit) {
+fun DefaultTopBar(
+    onSearchTriggered: () -> Unit,
+    onNavigationDrawerTriggered: () -> Unit
+) {
     TopAppBar(
         title = {
             Text(text = "Home")
@@ -98,6 +157,16 @@ fun DefaultTopBar(onSearchTriggered: () -> Unit) {
                     imageVector = Icons.Filled.Search,
                     contentDescription = "Search icon",
                     tint = Color.White
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onNavigationDrawerTriggered,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu Icon "
                 )
             }
         }
@@ -213,14 +282,26 @@ fun RowScope.AddItem(
             Text(text = screen.title)
         },
         icon = {
+            if (screen.badgeCount > 0) {
+                BadgedBox(
+                    badge = {
+                        Badge { Text(text = screen.badgeCount.toString()) }
+                    }
+                ) {
+                    Icon(
+                        imageVector = screen.icon,
+                        contentDescription = "navigation icon"
+                    )
+                }
+            }
+
             Icon(
                 imageVector = screen.icon,
                 contentDescription = "navigation icon"
             )
         },
-        selected = currentDestination?.hierarchy?.any {
-            it.route == screen.route
-        } == true,
+        selected = currentDestination?.route == screen.route,
+
         unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
         onClick = {
             navController.navigate(screen.route) {
@@ -237,7 +318,7 @@ fun RowScope.AddItem(
 @Composable
 @Preview
 fun DefaultAppBarPreview() {
-    DefaultTopBar(onSearchTriggered = {})
+    DefaultTopBar(onSearchTriggered = {}, onNavigationDrawerTriggered = {})
 }
 
 @Composable

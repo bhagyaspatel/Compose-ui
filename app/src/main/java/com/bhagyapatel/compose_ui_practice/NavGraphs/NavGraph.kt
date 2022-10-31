@@ -5,6 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.bhagyapatel.compose_ui_practice.NavGraphs.authNavGraph
 import com.bhagyapatel.compose_ui_practice.NavGraphs.homeNavGraph
+import com.bhagyapatel.compose_ui_practice.Routes.HOME_ROUTE
+import com.bhagyapatel.compose_ui_practice.Routes.ROOT_ROUTE
 
 @Composable
 fun SetupHomeNavGraph(navController: NavHostController) {
