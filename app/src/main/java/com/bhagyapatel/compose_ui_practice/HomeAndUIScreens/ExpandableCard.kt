@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -46,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
@@ -53,6 +55,7 @@ import com.bhagyapatel.compose_ui_practice.ui.theme.Grey
 import com.bhagyapatel.compose_ui_practice.ui.theme.Purple200
 import com.bhagyapatel.compose_ui_practice.ui.theme.Shapes
 import com.bhagyapatel.compose_ui_practice.ui.theme.Teal200
+import kotlinx.coroutines.launch
 
 private val TAG = "compose_ui"
 
@@ -67,7 +70,7 @@ fun ExpandableCard(
     descriptionFontSize: TextUnit = MaterialTheme.typography.subtitle1.fontSize,
     shape: CornerBasedShape = Shapes.medium,
     onClick: () -> Unit,
-    message : String
+    message: String
 ) {
     var expandedState by remember { mutableStateOf(false) }
     val rotateState by animateFloatAsState(
@@ -82,321 +85,396 @@ fun ExpandableCard(
 
     var scrollState = rememberScrollState()
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = LinearOutSlowInEasing
-                )
-            ),
-        shape = shape
-    ) {
-        Column(
-            modifier = Modifier
-                .verticalScroll(scrollState)
-                .fillMaxWidth()
-                .padding(12.dp),
-        ) {
-            Button(
-                onClick = {
-                    Log.d("home_screen", "ExpandedScreen : clicked")
-                    onClick()
-                },
-                modifier = Modifier
-                    .background(MaterialTheme.colors.onBackground)
-                    .height(50.dp)
-                    .width(130.dp)
-            ) {
-                Text(
-                    text = "Go Back!!",
-                    color = MaterialTheme.colors.surface,
-                    fontSize = MaterialTheme.typography.h6.fontSize,
-                )
-            }
+    val sheetState = rememberBottomSheetState(
+        initialValue = BottomSheetValue.Collapsed
+    )
 
-            Text(
-                text = "message from home screen: $message",
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = MaterialTheme.typography.h5.fontSize,
-                color = MaterialTheme.colors.primary,
-            )
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = sheetState
+    )
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    modifier = Modifier.weight(6f),
-                    text = title,
-                    fontSize = titleFontSize,
-                    fontWeight = titleFontWeight,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                IconButton(
-                    modifier = Modifier
-                        .alpha(ContentAlpha.medium)
-                        .weight(1f)
-                        .rotate(rotateState),
-                    onClick = {
-                        expandedState = !expandedState
-                    }) {
+    val scope = rememberCoroutineScope()
 
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Drop-Down A rrow"
-                    )
-                }
-            }
-
-            if (expandedState) {
-                Text(
-                    text = description,
-                    fontSize = descriptionFontSize,
-                    maxLines = 4,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            var inputText by remember { mutableStateOf("") }
-            val maxLength = 6
-
-            TextField(
-                value = inputText,
-                onValueChange = { newText ->
-                    if (newText.length < maxLength)
-                        inputText = newText
-                },
-                label = {
-                    Text(text = "TextField")
-                },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Filled.Email,
-                            contentDescription = "Email Icon"
-                        )
-                    }
-                },
-                trailingIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Outlined.Check,
-                            contentDescription = "Check Icon"
-                        )
-                    }
-                },
-//                maxLines = 2, //maximum 2 lines visible ..then scroll
-                singleLine = true, //converts into horizontal scrollbar and remove enter key
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Send //observe the enter button of the phone
-                ),
-                keyboardActions = KeyboardActions(
-                    onSend = {
-                        Log.d(TAG, "ExpandableCard: clicked")
-                        inputText = ""
-                    }
-                )
-            )
-
-            var outlineInputText by remember { mutableStateOf("") }
-
-            OutlinedTextField(
-                value = outlineInputText,
-                onValueChange = { newText ->
-                    outlineInputText = newText
-                },
-                label = {
-                    Text(text = "OutlinedTextField")
-                },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Filled.Email,
-                            contentDescription = "Email Icon"
-                        )
-                    }
-                },
-                trailingIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Outlined.Check,
-                            contentDescription = "Check Icon"
-                        )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Search //observe the enter button of the phone
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        Log.d(TAG, "ExpandableCard: clicked")
-                        inputText = ""
-                    }
-                )
-            )
-
-            Surface(
-                onClick = {
-                    isClicked = !isClicked
-                    Log.d(TAG, "google signup : clicked")
-                },
-                shape = Shapes.medium,
-                border = BorderStroke(width = 1.dp, color = Color.LightGray),
-                color = MaterialTheme.colors.surface,
-                modifier = Modifier.padding(vertical = 20.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(
-                            start = 12.dp, end = 16.dp,
-                            top = 12.dp, bottom = 12.dp
-                        )
-                        .animateContentSize(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = LinearOutSlowInEasing
-                            )
-                        )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_google_logo),
-                        contentDescription = "Google logo",
-                        tint = Color.Unspecified //else google logo will be b&w
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = if (isClicked) "Creating account"
-                        else "Sign Up with Google"
-                    )
-
-                    if (isClicked) {
-                        Log.d(TAG, "ExpandableCard: inside clicked")
-                        Spacer(modifier = Modifier.width(16.dp))
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .width(16.dp)
-                                .height(16.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colors.primary
-                        )
-                    }
-                }
-            }
-
-            Surface(
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetContent = {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(320.dp),
-                color = MaterialTheme.colors.background,
-                shape = Shapes.medium
-            ) {
-                Column() {
+                    .height(400.dp)
+            ){
+                Text(
+                    text = "Bottom Sheet",
+                    fontSize = 16.sp
+                )
+            }
+        },
+        sheetBackgroundColor = colorResource(id = R.color.bg),
+//        sheetPeekHeight = 100.dp
+    ) {
+        //TODO : The code which represents the above original screen
 
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        easing = LinearOutSlowInEasing
+                    )
+                ),
+            shape = shape
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(scrollState)
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            ) {
+                Button(
+                    onClick = {
+                        Log.d("home_screen", "ExpandedScreen : clicked")
+                        onClick()
+                    },
+                    modifier = Modifier
+                        .background(MaterialTheme.colors.onBackground)
+                        .height(50.dp)
+                        .width(130.dp)
+                ) {
+                    Text(
+                        text = "Go Back!!",
+                        color = MaterialTheme.colors.surface,
+                        fontSize = MaterialTheme.typography.h6.fontSize,
+                    )
+                }
+
+                Text(
+                    text = "message from home screen: $message",
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = MaterialTheme.typography.h5.fontSize,
+                    color = MaterialTheme.colors.primary,
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        modifier = Modifier.weight(6f),
+                        text = title,
+                        fontSize = titleFontSize,
+                        fontWeight = titleFontWeight,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    IconButton(
+                        modifier = Modifier
+                            .alpha(ContentAlpha.medium)
+                            .weight(1f)
+                            .rotate(rotateState),
+                        onClick = {
+                            expandedState = !expandedState
+                        }) {
+
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Drop-Down A rrow"
+                        )
+                    }
+                }
+
+                if (expandedState) {
+                    Text(
+                        text = description,
+                        fontSize = descriptionFontSize,
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                var inputText by remember { mutableStateOf("") }
+                val maxLength = 6
+
+                TextField(
+                    value = inputText,
+                    onValueChange = { newText ->
+                        if (newText.length < maxLength)
+                            inputText = newText
+                    },
+                    label = {
+                        Text(text = "TextField")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Filled.Email,
+                                contentDescription = "Email Icon"
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Outlined.Check,
+                                contentDescription = "Check Icon"
+                            )
+                        }
+                    },
+//                maxLines = 2, //maximum 2 lines visible ..then scroll
+                    singleLine = true, //converts into horizontal scrollbar and remove enter key
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Send //observe the enter button of the phone
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            Log.d(TAG, "ExpandableCard: clicked")
+                            inputText = ""
+                        }
+                    )
+                )
+
+                var outlineInputText by remember { mutableStateOf("") }
+
+                OutlinedTextField(
+                    value = outlineInputText,
+                    onValueChange = { newText ->
+                        outlineInputText = newText
+                    },
+                    label = {
+                        Text(text = "OutlinedTextField")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Filled.Email,
+                                contentDescription = "Email Icon"
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Outlined.Check,
+                                contentDescription = "Check Icon"
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Search //observe the enter button of the phone
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            Log.d(TAG, "ExpandableCard: clicked")
+                            inputText = ""
+                        }
+                    )
+                )
+
+                Surface(
+                    onClick = {
+                        isClicked = !isClicked
+                        Log.d(TAG, "google signup : clicked")
+                    },
+                    shape = Shapes.medium,
+                    border = BorderStroke(width = 1.dp, color = Color.LightGray),
+                    color = MaterialTheme.colors.surface,
+                    modifier = Modifier.padding(vertical = 20.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(
+                                start = 12.dp, end = 16.dp,
+                                top = 12.dp, bottom = 12.dp
+                            )
+                            .animateContentSize(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearOutSlowInEasing
+                                )
+                            )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_google_logo),
+                            contentDescription = "Google logo",
+                            tint = Color.Unspecified //else google logo will be b&w
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
 
                         Text(
-                            text = "Urgent need"
+                            text = if (isClicked) "Creating account"
+                            else "Sign Up with Google"
                         )
-                        Icon(
-                            imageVector = Icons.Filled.Notifications,
-                            contentDescription = "hot notification icon"
-                        )
-                    }
 
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(color = Grey)
-                    ) {
-                        list.forEach { ngoName ->
-                            stickyHeader {
-                                Text(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(Color.LightGray)
-                                        .padding(12.dp),
-                                    text = "Ngo"
-                                )
-                            }
-                            items(2) { num ->
-                                Text(
-                                    text = "${num}"
-                                )
-                                CardView(ngoName)
-                            }
+                        if (isClicked) {
+                            Log.d(TAG, "ExpandableCard: inside clicked")
+                            Spacer(modifier = Modifier.width(16.dp))
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .width(16.dp)
+                                    .height(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colors.primary
+                            )
+                        }
+                    }
+                }
+
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(320.dp),
+                    color = MaterialTheme.colors.background,
+                    shape = Shapes.medium
+                ) {
+                    Column() {
+
+                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+
+                            Text(
+                                text = "Urgent need"
+                            )
+                            Icon(
+                                imageVector = Icons.Filled.Notifications,
+                                contentDescription = "hot notification icon"
+                            )
                         }
 
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(color = Grey)
+                        ) {
+                            list.forEach { ngoName ->
+                                stickyHeader {
+                                    Text(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(Color.LightGray)
+                                            .padding(12.dp),
+                                        text = "Ngo"
+                                    )
+                                }
+                                items(2) { num ->
+                                    Text(
+                                        text = "${num}"
+                                    )
+                                    CardView(ngoName)
+                                }
+                            }
+                        }
                     }
                 }
-            }
-            CoilImage()
+                CoilImage()
 
-            var password by rememberSaveable { mutableStateOf("") }
-            var isVisible by rememberSaveable { mutableStateOf(true) }
-            val icon = if (isVisible)
-                painterResource(id = R.drawable.ic_baseline_visibility_24)
-            else
-                painterResource(id = R.drawable.ic_baseline_visibility_off_24)
+                var password by rememberSaveable { mutableStateOf("") }
+                var isVisible by rememberSaveable { mutableStateOf(true) }
+                val icon = if (isVisible)
+                    painterResource(id = R.drawable.ic_baseline_visibility_24)
+                else
+                    painterResource(id = R.drawable.ic_baseline_visibility_off_24)
 
-            OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                },
-                trailingIcon = {
-                    IconButton(onClick = { isVisible = !isVisible }) {
-                        Icon(
-                            painter = icon,
-                            contentDescription = "Visibility icon"
-                        )
-                    }
-                },
-                visualTransformation = if (isVisible) VisualTransformation.None
-                else PasswordVisualTransformation()
-            )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { isVisible = !isVisible }) {
+                            Icon(
+                                painter = icon,
+                                contentDescription = "Visibility icon"
+                            )
+                        }
+                    },
+                    visualTransformation = if (isVisible) VisualTransformation.None
+                    else PasswordVisualTransformation()
+                )
 
-            val gradient: Brush = Brush.horizontalGradient(
-                colors = listOf(Purple200, Teal200)
-            )
+                val gradient: Brush = Brush.horizontalGradient(
+                    colors = listOf(Purple200, Teal200, Color.Yellow, Color.Red)
+                )
 
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.Transparent
-                ),
-                contentPadding = PaddingValues(), //try removing this and see the result
-                onClick = {}
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(gradient)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues(), //try removing this and see the result
+                    onClick = {}
                 ) {
-                    Text(text = "Click", color = Color.Black)
+                    Box(
+                        modifier = Modifier
+                            .background(gradient)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Click", color = Color.Black)
+                    }
+                }
+
+                var value by rememberSaveable { mutableStateOf(0) }
+                CircularIndicator(indicatorValue = value)
+
+                TextField(
+                    value = value.toString(),
+                    onValueChange = {
+                        value = if (!it.isNullOrEmpty()) {
+                            it.toInt()
+                        } else {
+                            0
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .width(200.dp)
+                        .align(alignment = Alignment.CenterHorizontally),
+
+                    )
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues(), //try removing this and see the result
+                    onClick = {
+                        scope.launch {
+                            if(sheetState.isCollapsed)
+                                sheetState.expand()
+                            else
+                                sheetState.collapse()
+                        }
+                    }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Gray)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(text = "Toggle Bottomsheet", color = Color.Black)
+                    }
+                }
+
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues(), //try removing this and see the result
+                    onClick = {}
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(gradient)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Click", color = Color.Black)
+                    }
                 }
             }
-
-            var value by rememberSaveable { mutableStateOf(0) }
-            CircularIndicator(indicatorValue = value)
-            TextField(
-                value = value.toString(),
-                onValueChange = {
-                    value = if (!it.isNullOrEmpty()) {
-                        it.toInt()
-                    } else {
-                        0
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
         }
     }
+
 }
 
 @Composable
@@ -456,6 +534,7 @@ fun CircularIndicator(
     Column(
         modifier = Modifier
             .size(canvasSize)
+            .fillMaxWidth()
             .drawBehind {
                 val componentSize = size / 1.25f
                 //here "size" is the variable provided by DrawScope of type Size
